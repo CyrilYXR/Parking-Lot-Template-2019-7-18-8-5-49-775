@@ -77,10 +77,11 @@ public class ParkingLotControllerTest {
         ParkingLot parkingLot = new ParkingLot("parkingLot1",2,"position");
         parkingLot.setId(1L);
         //when
+        this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot)));
         //then
         this.mockMvc.perform(delete("/parking-lots/1"))
                 .andExpect(status().isOk());
-
     }
 
 

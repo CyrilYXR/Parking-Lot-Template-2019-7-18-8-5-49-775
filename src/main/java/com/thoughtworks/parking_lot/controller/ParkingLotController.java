@@ -22,4 +22,10 @@ public class ParkingLotController {
         return ResponseEntity.status(HttpStatus.CREATED).body(parkingLotSaved);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity delete(@PathVariable Long id){
+        parkingLotService.delete(id);
+        return ResponseEntity.ok().build();
+    }
+
 }
