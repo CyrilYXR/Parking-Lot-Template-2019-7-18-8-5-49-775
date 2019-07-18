@@ -39,4 +39,37 @@ public class ParkingLotControllerTest {
         Assertions.assertEquals(parkingLot.getName(), jsonObject.getString("name"));
         Assertions.assertEquals(parkingLot.getCapacity().intValue(), jsonObject.getInt("capacity"));
     }
+
+    @Test
+    public void should_throw_exception_when_add_a_parking_lot_name_has_exist() throws Exception {
+        //given
+        ParkingLot parkingLot = new ParkingLot("parkingLot1",10,"position");
+        ParkingLot parkingLot1 = new ParkingLot("parkingLot1",11,"position");
+        parkingLot.setId(1L);
+        parkingLot1.setId(2L);
+        //when
+        MvcResult mvcResult = this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot)))
+                .andExpect(status().isCreated()).andReturn();
+        //then
+        Assertions.assertThrows(Exception.class, ()->{
+           this.mockMvc.perform(post("/parking-lots")
+                   .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1)));
+        });
+    }
+
+    @Test
+    public void should_throw_exception_when_add_a_parking_lot_capacity_is_negative() {
+        //given
+        ParkingLot parkingLot = new ParkingLot("parkingLot1",-1,"position");
+        parkingLot.setId(1L);
+        //when
+        //then
+        Assertions.assertThrows(Exception.class, ()->{
+           this.mockMvc.perform(post("/parking-lots")
+                   .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot)));
+        });
+    }
+
+
 }
