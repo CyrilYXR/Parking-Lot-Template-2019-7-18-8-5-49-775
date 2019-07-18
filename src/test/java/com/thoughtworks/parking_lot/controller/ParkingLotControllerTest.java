@@ -2,6 +2,7 @@ package com.thoughtworks.parking_lot.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.thoughtworks.parking_lot.entity.ParkingLot;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -82,6 +83,29 @@ public class ParkingLotControllerTest {
         //then
         this.mockMvc.perform(delete("/parking-lots/1"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void should_return_parking_lot_page_when_select_by_page() throws Exception {
+        //given
+        ParkingLot parkingLot1 = new ParkingLot("parkingLot1",2,"position");
+        ParkingLot parkingLot2 = new ParkingLot("parkingLot2",2,"position");
+        ParkingLot parkingLot3 = new ParkingLot("parkingLot3",2,"position");
+        parkingLot1.setId(1L);
+        parkingLot2.setId(2L);
+        parkingLot3.setId(3L);
+        //when
+        this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1)));
+        this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot2)));
+        this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot3)));
+        //then
+        MvcResult mvcResult = this.mockMvc.perform(get("/parking-lots?page=1&pageSize=3"))
+                .andExpect(status().isOk()).andReturn();
+        JSONArray jsonArray = new JSONArray(mvcResult.getResponse().getContentAsString());
+        Assertions.assertEquals(3, jsonArray.length());
     }
 
 
