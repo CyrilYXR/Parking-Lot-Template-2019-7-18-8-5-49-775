@@ -23,10 +23,14 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-data-jpa'
     compile 'com.h2database:h2'
     compile 'org.flywaydb:flyway-core'
+    compile 'org.json:json:20180813'
+    compile 'com.alibaba:fastjson:1.2.47'
 
     testCompile 'org.assertj:assertj-core:3.10.0'
     testCompile 'org.mockito:mockito-core:2.+'
-
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.0.0')
+    testCompile('org.junit.jupiter:junit-jupiter-params:5.0.0')
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.0.0')
 }
 
 flyway {
