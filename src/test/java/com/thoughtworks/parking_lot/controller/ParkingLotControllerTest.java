@@ -71,5 +71,17 @@ public class ParkingLotControllerTest {
         });
     }
 
+    @Test
+    public void should_delete_a_parking_lot_when_delete_by_id() throws Exception {
+        //given
+        ParkingLot parkingLot = new ParkingLot("parkingLot1",2,"position");
+        parkingLot.setId(1L);
+        //when
+        //then
+        this.mockMvc.perform(delete("/parking-lots/1"))
+                .andExpect(status().isOk());
+
+    }
+
 
 }
