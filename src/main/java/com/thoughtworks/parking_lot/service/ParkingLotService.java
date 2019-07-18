@@ -31,4 +31,12 @@ public class ParkingLotService {
         }
         return null;
     }
+
+    public ParkingLot update(Long id, ParkingLot parkingLot) {
+        ParkingLot oldParkingLot = this.getById(id);
+        oldParkingLot.setName(parkingLot.getName());
+        oldParkingLot.setCapacity(parkingLot.getCapacity());
+        oldParkingLot.setPosition(parkingLot.getPosition());
+        return parkingLotRepository.save(oldParkingLot);
+    }
 }

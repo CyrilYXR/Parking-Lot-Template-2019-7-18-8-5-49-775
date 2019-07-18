@@ -43,4 +43,10 @@ public class ParkingLotController {
         return ResponseEntity.ok().body(parkingLot);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity update(@PathVariable Long id, @RequestBody ParkingLot parkingLot){
+        ParkingLot update = parkingLotService.update(id, parkingLot);
+        return ResponseEntity.ok().body(update);
+    }
+
 }

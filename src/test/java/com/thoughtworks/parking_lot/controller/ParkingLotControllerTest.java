@@ -130,5 +130,22 @@ public class ParkingLotControllerTest {
     }
 
 
+    @Test
+    public void should_update_parking_lot_when_update_by_id() throws Exception {
+        //given
+        ParkingLot parkingLot1 = new ParkingLot("parkingLot1",2,"position");
+        parkingLot1.setId(1L);
+        this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1)));
+        //when
+        parkingLot1.setCapacity(10);
+        MvcResult mvcResult = this.mockMvc.perform(put("/parking-lots/1")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1))).andReturn();
+        //then
+        JSONObject jsonObject = new JSONObject(mvcResult.getResponse().getContentAsString());
+        Assertions.assertEquals(10, jsonObject.getInt("capacity"));
+    }
+
+
 
 }
