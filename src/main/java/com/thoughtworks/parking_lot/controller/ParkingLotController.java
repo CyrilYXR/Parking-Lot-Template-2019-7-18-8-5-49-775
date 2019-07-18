@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/parking-lots")
 public class ParkingLotController {
@@ -33,6 +35,12 @@ public class ParkingLotController {
     public ResponseEntity getByPage(@RequestParam int page, @RequestParam int pageSize){
         Page<ParkingLot> parkingLotPage = parkingLotService.getByPage(page, pageSize);
         return ResponseEntity.ok().body(parkingLotPage.getContent());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity getById(@PathVariable Long id){
+        ParkingLot parkingLot = parkingLotService.getById(id);
+        return ResponseEntity.ok().body(parkingLot);
     }
 
 }

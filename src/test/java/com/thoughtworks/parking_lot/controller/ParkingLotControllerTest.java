@@ -108,5 +108,26 @@ public class ParkingLotControllerTest {
         Assertions.assertEquals(3, jsonArray.length());
     }
 
+    @Test
+    public void should_return_parking_lot_when_find_by_id() throws Exception {
+        //given
+        ParkingLot parkingLot1 = new ParkingLot("parkingLot1",2,"position");
+        ParkingLot parkingLot2 = new ParkingLot("parkingLot2",12,"position2");
+        parkingLot1.setId(1L);
+        parkingLot2.setId(2L);
+        //when
+        this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1)));
+        this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot2)));
+        //then
+        MvcResult mvcResult = this.mockMvc.perform(get("/parking-lots/1"))
+                .andExpect(status().isOk()).andReturn();
+        JSONObject jsonObject = new JSONObject(mvcResult.getResponse().getContentAsString());
+        Assertions.assertEquals(parkingLot1.getName(), jsonObject.getString("name"));
+        Assertions.assertEquals(parkingLot1.getCapacity().intValue(), jsonObject.getInt("capacity"));
+        Assertions.assertEquals(parkingLot1.getPosition(), jsonObject.getString("position"));
+    }
+
 
 }

@@ -24,4 +24,11 @@ public class ParkingLotService {
     public Page<ParkingLot> getByPage(int page, int pageSize){
         return parkingLotRepository.findAll(PageRequest.of(page-1, pageSize));
     }
+
+    public ParkingLot getById(Long id) {
+        if(parkingLotRepository.findById(id).isPresent()) {
+            return parkingLotRepository.findById(id).get();
+        }
+        return null;
+    }
 }
