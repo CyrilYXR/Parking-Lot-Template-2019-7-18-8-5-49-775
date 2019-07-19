@@ -21,7 +21,6 @@ public class ParkingLotController {
     @PostMapping()
     public ResponseEntity add(@RequestBody ParkingLot parkingLot) {
         ParkingLot parkingLotSaved = parkingLotService.save(parkingLot);
-//        ParkingLot parkingLotSaved = parkingLotRepository.save(parkingLot);
         return ResponseEntity.status(HttpStatus.CREATED).body(parkingLotSaved);
     }
 

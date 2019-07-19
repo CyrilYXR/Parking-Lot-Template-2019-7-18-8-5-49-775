@@ -8,13 +8,13 @@ import javax.persistence.*;
 public class ParkingLot {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
     private String name;
 
-//    @Check(constraints = "capacity>=0")
+    @Check(constraints = "capacity>=0")
     @Column
     private Integer capacity;
 

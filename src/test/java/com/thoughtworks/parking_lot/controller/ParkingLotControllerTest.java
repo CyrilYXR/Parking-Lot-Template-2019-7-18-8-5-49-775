@@ -2,15 +2,20 @@ package com.thoughtworks.parking_lot.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.thoughtworks.parking_lot.entity.ParkingLot;
+import com.thoughtworks.parking_lot.repository.ParkingLotRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -26,12 +31,18 @@ public class ParkingLotControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    ParkingLotRepository parkingLotRepository;
+
+    @Before
+    public void initH2(){
+        parkingLotRepository.deleteAll();
+    }
+
     @Test
     public void should_return_ok_when_add_a_parking_lot() throws Exception {
 
         ParkingLot parkingLot = new ParkingLot("parkingLot1",10,"position");
-        //TODO id用自增类型有问题
-        parkingLot.setId(1L);
         MvcResult mvcResult = this.mockMvc.perform(post("/parking-lots")
                 .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot)))
                 .andExpect(status().isCreated()).andReturn();
@@ -46,12 +57,11 @@ public class ParkingLotControllerTest {
         //given
         ParkingLot parkingLot = new ParkingLot("parkingLot1",10,"position");
         ParkingLot parkingLot1 = new ParkingLot("parkingLot1",11,"position");
-        parkingLot.setId(1L);
-        parkingLot1.setId(2L);
         //when
         MvcResult mvcResult = this.mockMvc.perform(post("/parking-lots")
                 .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot)))
                 .andExpect(status().isCreated()).andReturn();
+
         //then
         Assertions.assertThrows(Exception.class, ()->{
            this.mockMvc.perform(post("/parking-lots")
@@ -63,7 +73,6 @@ public class ParkingLotControllerTest {
     public void should_throw_exception_when_add_a_parking_lot_capacity_is_negative() {
         //given
         ParkingLot parkingLot = new ParkingLot("parkingLot1",-1,"position");
-        parkingLot.setId(1L);
         //when
         //then
         Assertions.assertThrows(Exception.class, ()->{
@@ -76,12 +85,12 @@ public class ParkingLotControllerTest {
     public void should_delete_a_parking_lot_when_delete_by_id() throws Exception {
         //given
         ParkingLot parkingLot = new ParkingLot("parkingLot1",2,"position");
-        parkingLot.setId(1L);
         //when
-        this.mockMvc.perform(post("/parking-lots")
-                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot)));
+        MvcResult mvcResult = this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot))).andReturn();
+        JSONObject jsonObject = new JSONObject(mvcResult.getResponse().getContentAsString());
         //then
-        this.mockMvc.perform(delete("/parking-lots/1"))
+        this.mockMvc.perform(delete("/parking-lots/"+jsonObject.getLong("id")))
                 .andExpect(status().isOk());
     }
 
@@ -91,9 +100,6 @@ public class ParkingLotControllerTest {
         ParkingLot parkingLot1 = new ParkingLot("parkingLot1",2,"position");
         ParkingLot parkingLot2 = new ParkingLot("parkingLot2",2,"position");
         ParkingLot parkingLot3 = new ParkingLot("parkingLot3",2,"position");
-        parkingLot1.setId(1L);
-        parkingLot2.setId(2L);
-        parkingLot3.setId(3L);
         //when
         this.mockMvc.perform(post("/parking-lots")
                 .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1)));
@@ -113,15 +119,15 @@ public class ParkingLotControllerTest {
         //given
         ParkingLot parkingLot1 = new ParkingLot("parkingLot1",2,"position");
         ParkingLot parkingLot2 = new ParkingLot("parkingLot2",12,"position2");
-        parkingLot1.setId(1L);
-        parkingLot2.setId(2L);
         //when
-        this.mockMvc.perform(post("/parking-lots")
-                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1)));
+        MvcResult mvcResultSaved = this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1))).andReturn();
+        JSONObject saved = new JSONObject(mvcResultSaved.getResponse().getContentAsString());
+
         this.mockMvc.perform(post("/parking-lots")
                 .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot2)));
         //then
-        MvcResult mvcResult = this.mockMvc.perform(get("/parking-lots/1"))
+        MvcResult mvcResult = this.mockMvc.perform(get("/parking-lots/"+saved.getLong("id")))
                 .andExpect(status().isOk()).andReturn();
         JSONObject jsonObject = new JSONObject(mvcResult.getResponse().getContentAsString());
         Assertions.assertEquals(parkingLot1.getName(), jsonObject.getString("name"));
@@ -134,12 +140,13 @@ public class ParkingLotControllerTest {
     public void should_update_parking_lot_when_update_by_id() throws Exception {
         //given
         ParkingLot parkingLot1 = new ParkingLot("parkingLot1",2,"position");
-        parkingLot1.setId(1L);
-        this.mockMvc.perform(post("/parking-lots")
-                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1)));
+        MvcResult mvcResultSaved = this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1))).andReturn();
+        JSONObject saved = new JSONObject(mvcResultSaved.getResponse().getContentAsString());
+
         //when
         parkingLot1.setCapacity(10);
-        MvcResult mvcResult = this.mockMvc.perform(put("/parking-lots/1")
+        MvcResult mvcResult = this.mockMvc.perform(put("/parking-lots/"+saved.getLong("id"))
                 .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1))).andReturn();
         //then
         JSONObject jsonObject = new JSONObject(mvcResult.getResponse().getContentAsString());
