@@ -3,9 +3,10 @@ package com.thoughtworks.parking_lot.entity;
 import org.hibernate.annotations.Check;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
-public class ParkingLot {
+public class ParkingLot implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
