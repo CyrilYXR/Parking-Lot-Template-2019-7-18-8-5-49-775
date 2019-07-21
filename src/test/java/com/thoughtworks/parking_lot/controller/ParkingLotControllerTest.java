@@ -8,19 +8,17 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -58,27 +56,32 @@ public class ParkingLotControllerTest {
         ParkingLot parkingLot = new ParkingLot("parkingLot1",10,"position");
         ParkingLot parkingLot1 = new ParkingLot("parkingLot1",11,"position");
         //when
-        MvcResult mvcResult = this.mockMvc.perform(post("/parking-lots")
+        this.mockMvc.perform(post("/parking-lots")
                 .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot)))
                 .andExpect(status().isCreated()).andReturn();
 
         //then
-        Assertions.assertThrows(Exception.class, ()->{
-           this.mockMvc.perform(post("/parking-lots")
-                   .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1)));
-        });
+        this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot1)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Name has bean used!"));
+
     }
 
     @Test
-    public void should_throw_exception_when_add_a_parking_lot_capacity_is_negative() {
+    public void should_throw_exception_when_add_a_parking_lot_capacity_is_negative() throws Exception {
         //given
         ParkingLot parkingLot = new ParkingLot("parkingLot1",-1,"position");
         //when
         //then
-        Assertions.assertThrows(Exception.class, ()->{
-           this.mockMvc.perform(post("/parking-lots")
-                   .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot)));
-        });
+//        Assertions.assertThrows(Exception.class, ()->{
+//           this.mockMvc.perform(post("/parking-lots")
+//                   .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot)));
+//        });
+        this.mockMvc.perform(post("/parking-lots")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingLot)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Capacity is negative!"));
     }
 
     @Test

@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ParkingLotRepository extends JpaRepository<ParkingLot, Long> {
+    ParkingLot findOneByName(String name);
+
 }
