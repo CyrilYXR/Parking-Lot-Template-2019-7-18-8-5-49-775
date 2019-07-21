@@ -44,7 +44,7 @@ public class ParkingOrderControllerTest {
     private ParkingLot initParkingLot;
 
     @Before
-    public void initH2(){
+    public void initH2() throws Exception {
         initParkingLot = new ParkingLot("pl", 2, "position");
         parkingLotRepository.save(initParkingLot);
         ParkingOrder parkingOrder = new ParkingOrder("pl", "123456", new Date(), null, 1);
@@ -92,6 +92,26 @@ public class ParkingOrderControllerTest {
         Assertions.assertEquals(initOrder.getStatus().intValue(), orderSaved.getInt("status"));
 
         Assertions.assertEquals(initParkingLot.getCapacity() + 1, parkingLot.getCapacity().intValue());
+    }
+
+    @Test
+    public void should_return_failed_when_parking_lot_is_full() throws Exception {
+        ParkingOrder parkingOrder1 = new ParkingOrder(this.initParkingLot.getName(), "321321", new Date(), null, 1);
+        ParkingOrder parkingOrder2 = new ParkingOrder(this.initParkingLot.getName(), "789789", new Date(), null, 1);
+        ParkingOrder parkingOrder3 = new ParkingOrder(this.initParkingLot.getName(), "121212", new Date(), null, 1);
+
+        this.mockMvc.perform(post("/orders")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingOrder1)))
+                .andExpect(status().isOk());
+        this.mockMvc.perform(post("/orders")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingOrder2)))
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(post("/orders")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingOrder3)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("The parking lot is full now!"));
+
     }
 
 
