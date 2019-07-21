@@ -22,7 +22,7 @@ public class OrderService {
     public ParkingOrder add(ParkingOrder parkingOrder) {
         List<ParkingLot> parkingLots = parkingLotRepository.findByName(parkingOrder.getParkingLotName());
         if(parkingLots.size() < 1){
-            throw new GlobalException(3, "parking lot name is not exist!");
+            throw new GlobalException(3, "Parking lot name is not exist!");
         }
         ParkingLot parkingLot = parkingLots.get(0);
         parkingLot.setCapacity(parkingLot.getCapacity() - 1);

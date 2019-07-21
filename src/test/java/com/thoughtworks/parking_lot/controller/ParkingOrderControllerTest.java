@@ -63,4 +63,15 @@ public class ParkingOrderControllerTest {
         Assertions.assertEquals(parkingOrder.getCarNumber(), orderSaved.getString("carNumber"));
         Assertions.assertEquals(parkingOrder.getStatus().intValue(), orderSaved.getInt("status"));
     }
+
+    @Test
+    public void should_return_failed_when_add_an_order_with_error_parking_lot_name() throws Exception {
+        ParkingOrder parkingOrder = new ParkingOrder("An Error Name", "123123", new Date(), null, 1);
+        this.mockMvc.perform(post("/orders")
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(parkingOrder)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Parking lot name is not exist!"));
+    }
+
+
 }
