@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Date;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -39,12 +40,15 @@ public class ParkingOrderControllerTest {
     @Autowired
     ParkingLotRepository parkingLotRepository;
 
+    private ParkingOrder initOrder;
+    private ParkingLot initParkingLot;
+
     @Before
     public void initH2(){
-        ParkingLot parkingLot = new ParkingLot("pl", 10, "position");
-        parkingLotRepository.save(parkingLot);
+        initParkingLot = new ParkingLot("pl", 2, "position");
+        parkingLotRepository.save(initParkingLot);
         ParkingOrder parkingOrder = new ParkingOrder("pl", "123456", new Date(), null, 1);
-        orderRepository.save(parkingOrder);
+        initOrder = orderRepository.save(parkingOrder);
     }
 
     @After
@@ -72,6 +76,24 @@ public class ParkingOrderControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Parking lot name is not exist!"));
     }
+
+    @Test
+    public void should_return_ok_and_update_order_when_fetch_a_car() throws Exception {
+        this.initOrder.setStatus(2);
+
+        MvcResult mvcResult = this.mockMvc.perform(put("/orders/"+this.initOrder.getId())
+                .contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(initOrder)))
+                .andExpect(status().isOk()).andReturn();
+        JSONObject orderSaved = new JSONObject(mvcResult.getResponse().getContentAsString());
+
+        ParkingLot parkingLot = parkingLotRepository.findByName(initOrder.getParkingLotName()).get(0);
+
+        Assertions.assertEquals(initOrder.getCarNumber(), orderSaved.getString("carNumber"));
+        Assertions.assertEquals(initOrder.getStatus().intValue(), orderSaved.getInt("status"));
+
+        Assertions.assertEquals(initParkingLot.getCapacity() + 1, parkingLot.getCapacity().intValue());
+    }
+
 
 
 }
