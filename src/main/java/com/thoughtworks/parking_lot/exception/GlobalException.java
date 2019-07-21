@@ -1,11 +1,11 @@
 package com.thoughtworks.parking_lot.exception;
 
-public class IllegalParamException extends RuntimeException {
+public class GlobalException extends RuntimeException {
 
     private Integer code;
     private String errMessage;
 
-    public IllegalParamException(Integer code, String errMessage) {
+    public GlobalException(Integer code, String errMessage) {
         this.code = code;
         this.errMessage = errMessage;
     }

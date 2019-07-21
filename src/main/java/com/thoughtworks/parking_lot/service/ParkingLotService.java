@@ -1,7 +1,7 @@
 package com.thoughtworks.parking_lot.service;
 
 import com.thoughtworks.parking_lot.entity.ParkingLot;
-import com.thoughtworks.parking_lot.exception.IllegalParamException;
+import com.thoughtworks.parking_lot.exception.GlobalException;
 import com.thoughtworks.parking_lot.repository.ParkingLotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,10 +16,10 @@ public class ParkingLotService {
 
     public ParkingLot save(ParkingLot parkingLot) {
         if(parkingLotRepository.findOneByName(parkingLot.getName()) != null){
-            throw new IllegalParamException(1,"Name has bean used!");
+            throw new GlobalException(1,"Name has bean used!");
         }
         if(parkingLot.getCapacity()<0){
-            throw new IllegalParamException(2, "Capacity is negative!");
+            throw new GlobalException(2, "Capacity is negative!");
         }
         return parkingLotRepository.save(parkingLot);
     }
